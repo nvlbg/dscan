@@ -1,4 +1,18 @@
 defmodule Validator do
+  @ip_port ~r/^((?:\d{1,2}|1\d{2}|2[0-4]\d|25[0-5])\.
+                (?:\d{1,2}|1\d{2}|2[0-4]\d|25[0-5])\.
+                (?:\d{1,2}|1\d{2}|2[0-4]\d|25[0-5])\.
+                (?:\d{1,2}|1\d{2}|2[0-4]\d|25[0-5])):
+                (\d{1,5})$/x
+
+  @ip_mask ~r/^((?:\d{1,2}|1\d{2}|2[0-4]\d|25[0-5])\.
+                (?:\d{1,2}|1\d{2}|2[0-4]\d|25[0-5])\.
+                (?:\d{1,2}|1\d{2}|2[0-4]\d|25[0-5])\.
+                (?:\d{1,2}|1\d{2}|2[0-4]\d|25[0-5]))
+                (?:\/(\d|[12]\d|3[0-2]))?$/x
+
+  @ports ~r/^\d+(,\d+)*$/
+
   def validate_args({parsed, targets, []}) do
     # Validate only one type of port scanning is requested
     port = parsed |> Keyword.get(:port)
@@ -17,8 +31,28 @@ defmodule Validator do
     cacertfile = Keyword.get(parsed, :cacertfile, "cacert.pem")
     key_password = Keyword.get(parsed, :key_password, "")
 
+    if !File.exists?(certfile) do
+      Client.halt(1, "Certificate file #{certfile} does not exist")
+    end
+
+    if !File.exists?(keyfile) do
+      Client.halt(1, "Key file #{keyfile} does not exist")
+    end
+
+    if !File.exists?(cacertfile) do
+      Client.halt(1, "CA certificate file #{cacertfile} does not exist")
+    end
+
     # Validate targets
-    # TODO
+    if List.first(targets) == nil do # no targets given
+      Client.halt(1, "No targets given")
+    end
+
+    Enum.each(targets, fn target ->
+      if !Regex.match?(@ip_mask, target) do
+        Client.halt(1, "Invalid target: #{target}")
+      end
+    end)
 
     %{:ports => ports,
       :targets => targets,
@@ -31,34 +65,33 @@ defmodule Validator do
   end
 
   def validate_args({_, _, invalid}) do
-    print_invalid_args(invalid)
+    Enum.each(invalid, fn {option, _} ->
+      IO.puts(:stderr, "Unknown option or invalid value: #{option}")
+    end)
+    Client.halt(1)
   end
-
-  defp print_invalid_args([{option, _} | tail]) do
-    IO.puts(:stderr, "Unknown option or invalid value: #{option}")
-    print_invalid_args(tail)
-  end
-  defp print_invalid_args([]), do: Client.halt(1)
 
   defp get_ports(port, nil, nil), do: [port]
   defp get_ports(nil, ports, nil) do 
+    if !Regex.match?(@ports, ports) do
+      Client.halt(1, "Invalid ports given")
+    end
+
     ports
     |> String.split(",")
     |> Enum.map(&String.to_integer/1)
   end
   defp get_ports(nil, nil, true), do: :all
   defp get_ports(_, _, _) do
-    IO.puts(:stderr, "More than one type of port scanning given")
-    Client.halt(1)
+    Client.halt(1, "More than one type of port scanning given")
   end
 
   defp parse_ip(server) do
-    case String.split(server, ":") do
-      [ip, port] ->
-        {ip, String.to_integer(port)}
+    case Regex.run(@ip_port, server) do
+      [_, ip, port] ->
+        {ip, port |> String.to_integer}
       _ ->
-        IO.puts(:stderr, "Invalid server given: #{server}. Expected format is ip:port")
-        Client.halt(1)
+        Client.halt(1, "Invalid server given: #{server}. Expected format is ip:port")
     end
   end
 end
