@@ -87,5 +87,22 @@ defmodule NetworkTest do
     assert Enum.count(Network.partition(net, 17)) == 16
     assert Enum.count(Network.partition(net, 16)) == 16
   end
+
+  test "Can stream ips" do
+    net = Network.new("1.2.3.4/30")
+
+    [a, b, c, d] = Network.ips(net) |> Enum.to_list
+
+    assert a == << 1, 2, 3, 4 >>
+    assert b == << 1, 2, 3, 5 >>
+    assert c == << 1, 2, 3, 6 >>
+    assert d == << 1, 2, 3, 7 >>
+  end
+
+  test "Can stream single ip" do
+    ip = Network.new("1.2.3.4")
+
+    assert [<< 1, 2, 3, 4 >>] == Network.ips(ip) |> Enum.to_list
+  end
 end
 
