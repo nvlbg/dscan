@@ -75,5 +75,13 @@ defmodule Network do
     lower..upper
     |> Stream.map(&<< net::size(mask), &1::size(host) >>)
   end
+
+  def total_ips(%Network{first_ip: first, last_ip: last, mask: mask}) do
+    host = 32 - mask
+    << net::size(mask),  lower::size(host) >> = first
+    << ^net::size(mask), upper::size(host) >> = last
+
+    upper - lower + 1
+  end
 end
 

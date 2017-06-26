@@ -104,5 +104,18 @@ defmodule NetworkTest do
 
     assert [<< 1, 2, 3, 4 >>] == Network.ips(ip) |> Enum.to_list
   end
+
+  test "Can get total ips in a network" do
+    assert Network.new("1.2.3.4") |> Network.total_ips == 1
+    assert Network.new("1.2.3.4/24") |> Network.total_ips == 256
+
+    net = Network.new("1.2.3.4/29")
+
+    [first, second, third] = Network.partition(net, 3)
+
+    assert Network.total_ips(first) == 3
+    assert Network.total_ips(second) == 3
+    assert Network.total_ips(third) == 2
+  end
 end
 
