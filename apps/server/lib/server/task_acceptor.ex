@@ -26,7 +26,12 @@ defmodule Server.TaskAcceptor do
   defp loop_acceptor(socket) do
     {:ok, client} = :ssl.transport_accept(socket)
     Logger.info "Recieved a connection..."
-    {:ok, pid} = Task.Supervisor.start_child(Server.TaskSupervisor, Server.TaskRequest, :serve, [client])
+    {:ok, pid} = Task.Supervisor.start_child(
+      Server.RequestSupervisor,
+      Server.RequestHandler,
+      :serve,
+      [client]
+    )
     :ok = :ssl.controlling_process(client, pid)
     loop_acceptor(socket)
   end

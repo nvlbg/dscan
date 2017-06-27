@@ -1,4 +1,24 @@
-defmodule Server.TaskRequest do
+defmodule ProgressHandler do
+  use GenEvent
+
+  def handle_event({ip, port}, {_targets_left, _socket} = state) do
+    IO.inspect {ip, port}
+    {:ok, state}
+  end
+
+  def handle_event(:done, {1, socket}) do
+    :ssl.send(socket, "done")
+    :ssl.close(socket)
+    GenEvent.stop(self())
+    :remove_handler
+  end
+
+  def handle_event(:done, {targets_left, socket}) do
+    {:ok, {targets_left - 1, socket}}
+  end
+end
+
+defmodule Server.RequestHandler do
   require Logger
 
   def serve(socket) do
@@ -24,11 +44,14 @@ defmodule Server.TaskRequest do
   end
 
   defp serve_request(socket, %{"targets" => targets, "ports" => ports}) do
-    scans = for target <- targets, port <- ports do
-      {target, port, Task.Supervisor.async_nolink(Server.TaskSupervisor, Server.Scanner, :scan, [target, port, 100])}
-    end
-    scans |> Enum.map(fn {ip, port, task} -> {ip, port, Task.await(task)} end) |> Enum.filter(fn {_, _, status} -> status == :open end) |> IO.inspect
-    :ssl.send(socket, "ok")
+    total_targets = Enum.count(targets)
+    {:ok, pid} = GenEvent.start_link
+    GenEvent.add_handler(pid, ProgressHandler, {total_targets, socket})
+
+    Enum.each(targets, fn target ->
+      net = Network.new(target)
+      Server.Scanner.scan(pid, net, ports, 5000)
+    end)
   end
 
   defp serve_request(socket, req) do
