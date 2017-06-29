@@ -1,4 +1,4 @@
-defmodule Server.Scanner do
+defmodule Scanner.Service do
   use GenServer
 
   @scan_client Application.get_env(:server, :scan_client)
@@ -36,7 +36,7 @@ defmodule Server.Scanner do
     |> Stream.each(fn ip ->
       for port <- ports do
         Task.Supervisor.async_nolink(
-          Server.ScanSupervisor,
+          :scan_supervisor,
           fn ->
             {ref, manager, ip, port, @scan_client.scan_ip(ip, port, timeout)}
           end

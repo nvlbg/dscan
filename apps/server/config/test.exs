@@ -1,4 +1,4 @@
 use Mix.Config
 
-config :server, :scan_client, Server.TestScanner
+config :server, :scan_client, Scanner.TestScanner
 

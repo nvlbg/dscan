@@ -1,4 +1,4 @@
-defmodule Server.TcpScanner do
+defmodule Scanner.TcpScanner do
   def scan_ip(ip, port, timeout \\ :infinity)
 
   def scan_ip(ip, port, timeout) when is_binary(ip) do

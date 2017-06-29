@@ -27,7 +27,7 @@ defmodule Server.TaskAcceptor do
     {:ok, client} = :ssl.transport_accept(socket)
     Logger.info "Recieved a connection..."
     {:ok, pid} = Task.Supervisor.start_child(
-      Server.RequestSupervisor,
+      :request_supervisor,
       Server.RequestHandler,
       :serve,
       [client]

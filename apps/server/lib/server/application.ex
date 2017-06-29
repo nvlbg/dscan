@@ -5,10 +5,10 @@ defmodule Server.Application do
     import Supervisor.Spec, warn: false
 
     children = [
-      supervisor(Task.Supervisor, [[name: Server.RequestSupervisor]], [id: :request_supervisor]),
+      supervisor(Task.Supervisor, [[name: :request_supervisor]], [id: :request_supervisor]),
       worker(Task, [Server.TaskAcceptor, :accept, []]),
-      supervisor(Task.Supervisor, [[name: Server.ScanSupervisor]], [id: :scan_supervisor]),
-      worker(Server.Scanner, [])
+      supervisor(Task.Supervisor, [[name: :scan_supervisor]], [id: :scan_supervisor]),
+      worker(Scanner.Service, [])
     ]
 
     opts = [strategy: :one_for_one, name: Server.Supervisor]

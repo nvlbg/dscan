@@ -50,7 +50,7 @@ defmodule Server.RequestHandler do
 
     Enum.each(targets, fn target ->
       net = Network.new(target)
-      Server.Scanner.scan(pid, net, ports, 5000)
+      Scanner.Service.scan(pid, net, ports, 5000)
     end)
   end
 

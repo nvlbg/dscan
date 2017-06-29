@@ -1,11 +1,3 @@
-defmodule Server.TestScanner do
-  def scan_ip(ip, port, timeout \\ :infinity)
-
-  def scan_ip(<< 1, 2, 3, 4 >>, 1337, _), do: :open
-  def scan_ip(<< 1, 2, 3, 42 >>, 1337, _), do: :open
-  def scan_ip(_ip, _port, _timeout), do: :closed
-end
-
 defmodule TestHandler do
   use GenEvent
 
@@ -32,7 +24,7 @@ defmodule ScannerTest do
     # TODO: why is getting a stream not working?
     # stream = GenEvent.stream(manager, timeout: 1000) |> Stream.take_while(&(&1 != :done))
     GenEvent.add_handler(manager, TestHandler, {:working, []})
-    Server.Scanner.scan(manager, host, [1337])
+    Scanner.Service.scan(manager, host, [1337])
 
     # give the scanner/handler time to scan
     Process.sleep(10)
@@ -48,7 +40,7 @@ defmodule ScannerTest do
 
     GenEvent.add_handler(manager, TestHandler, {:working, []})
 
-    Server.Scanner.scan(manager, net, [1337])
+    Scanner.Service.scan(manager, net, [1337])
 
     # give the scanner/handler time to scan
     Process.sleep(10)
