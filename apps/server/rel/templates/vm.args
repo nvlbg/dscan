@@ -9,5 +9,5 @@
 -ssl_dist_opt server_keyfile    key.pem      client_keyfile    key.pem
 -ssl_dist_opt server_cacertfile cacert.pem   client_cacertfile cacert.pem
 -ssl_dist_opt server_verify     verify_peer  client_verify     verify_peer
--ssl_dist_opt server_fail_if_no_peer_cert true"
+-ssl_dist_opt server_fail_if_no_peer_cert true
 
