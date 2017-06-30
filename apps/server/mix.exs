@@ -20,7 +20,7 @@ defmodule Server.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     # Specify extra applications you'll use from Erlang/Elixir
-    [extra_applications: [:logger],
+    [extra_applications: [:logger, :ssl],
      mod: {Server.Application, []}]
   end
 
@@ -38,7 +38,8 @@ defmodule Server.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    [{:poison, "~> 3.1"}]
+    [{:poison, "~> 3.1"},
+     {:distillery, "~> 1.4"}]
   end
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]

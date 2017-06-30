@@ -11,12 +11,6 @@ defmodule Processor do
     targets = args |> Map.get(:targets)
     ports = args |> Map.get(:ports)
 
-    case :ssl.start() do
-      {:error, reason} ->
-        Client.halt(1, "Could not start ssl module: #{reason}")
-      _ -> :noop
-    end
-
     conn = :ssl.connect(
       server_ip |> to_charlist,
       server_port,

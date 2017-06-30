@@ -9,7 +9,6 @@ defmodule Server.TaskAcceptor do
     cacertfile   = System.get_env() |> Map.get("cacertfile", "cacert.pem") |> to_charlist
     key_password = System.get_env() |> Map.get("key_password", "")         |> to_charlist
 
-    :ssl.start()
     {:ok, socket} = :ssl.listen(port, [
       :binary,
       certfile: certfile,
