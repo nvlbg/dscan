@@ -2,21 +2,17 @@ defmodule Server.TaskAcceptor do
   require Logger
 
   def accept() do
-    port = System.get_env() |> Map.get("port", 5000)
-
-    certfile     = System.get_env() |> Map.get("certfile", "cert.pem")     |> to_charlist
-    keyfile      = System.get_env() |> Map.get("keyfile", "key.pem")       |> to_charlist
-    cacertfile   = System.get_env() |> Map.get("cacertfile", "cacert.pem") |> to_charlist
-    key_password = System.get_env() |> Map.get("key_password", "")         |> to_charlist
+    port         = Application.fetch_env!(:server, :port)
+    key_password = Application.fetch_env!(:server, :key_password) |> to_charlist
 
     {:ok, socket} = :ssl.listen(port, [
       :binary,
-      certfile: certfile,
-      keyfile: keyfile,
-      cacertfile: cacertfile,
-      password: key_password,
-      active: false,
-      reuseaddr: true
+      certfile:   'cert.pem',
+      keyfile:    'key.pem',
+      cacertfile: 'cacert.pem',
+      password:   key_password,
+      active:     false,
+      reuseaddr:  true
     ])
     Logger.info "Accepting connections on port #{port}"
     loop_acceptor(socket)

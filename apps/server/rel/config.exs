@@ -34,7 +34,8 @@ release :server do
   ]
   set overlay_vars: [
     public_ip: System.get_env() |> Map.fetch!("PUBLIC_IP"),
-    erlang_cookie: System.get_env() |> Map.fetch!("ERLANG_COOKIE")
+    erlang_cookie: System.get_env() |> Map.fetch!("ERLANG_COOKIE"),
+    key_password: System.get_env() |> Map.fetch!("KEY_PASSWORD")
   ]
 end
 

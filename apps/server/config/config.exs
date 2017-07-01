@@ -20,6 +20,8 @@ use Mix.Config
 #
 #     config :logger, level: :info
 #
+config :server, port: 5000
+config :server, key_password: System.get_env() |> Map.fetch!("KEY_PASSWORD")
 
 # It is also possible to import configuration files, relative to this
 # directory. For example, you can emulate configuration per environment
@@ -28,3 +30,4 @@ use Mix.Config
 # here (which is why it is important to import them last).
 #
 import_config "#{Mix.env}.exs"
+
