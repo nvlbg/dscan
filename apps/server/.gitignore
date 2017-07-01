@@ -23,5 +23,5 @@ erl_crash.dump
 *.pem
 
 # Ignore nodes file
-rel/templates/nodes.txt
+priv/nodes.txt
 

@@ -2,8 +2,8 @@ defmodule Server.TaskAcceptor do
   require Logger
 
   def accept() do
-    port         = Application.fetch_env!(:server, :port)
-    key_password = Application.fetch_env!(:server, :key_password) |> to_charlist
+    port         = System.get_env() |> Map.fetch!("PORT") |> String.to_integer
+    key_password = System.get_env() |> Map.fetch!("KEY_PASSWORD") |> to_charlist
 
     {:ok, socket} = :ssl.listen(port, [
       :binary,

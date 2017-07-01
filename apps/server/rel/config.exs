@@ -26,17 +26,12 @@ release :server do
   set applications: [
     :runtime_tools
   ]
+  set vm_args: "rel/templates/vm.args"
   set overlays: [
-    {:template, "rel/templates/vm.args", "releases/<%= release_version %>/vm.args"},
-    {:template, "rel/templates/nodes.txt", "nodes.txt"},
-    {:template, "rel/templates/cacert.pem", "cacert.pem"},
-    {:template, "rel/templates/cert.pem", "cert.pem"},
-    {:template, "rel/templates/key.pem", "key.pem"}
-  ]
-  set overlay_vars: [
-    public_ip: System.get_env() |> Map.fetch!("PUBLIC_IP"),
-    erlang_cookie: System.get_env() |> Map.fetch!("ERLANG_COOKIE"),
-    key_password: System.get_env() |> Map.fetch!("KEY_PASSWORD")
+    {:copy, "priv/nodes.txt", "nodes.txt"},
+    {:copy, "priv/cacert.pem", "cacert.pem"},
+    {:copy, "priv/cert.pem", "cert.pem"},
+    {:copy, "priv/key.pem", "key.pem"}
   ]
 end
 

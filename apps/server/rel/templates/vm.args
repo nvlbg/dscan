@@ -1,5 +1,5 @@
--name <%= release_name %>@<%= public_ip %>
--setcookie <%= erlang_cookie %>
+-name <%= release_name %>@${PUBLIC_IP}
+-setcookie ${ERLANG_COOKIE}
 
 -proto_dist Elixir.Epmdless
 -epmd_module Elixir.Epmdless_epmd_client
@@ -7,7 +7,7 @@
 
 -ssl_dist_opt server_certfile   cert.pem              client_certfile   cert.pem
 -ssl_dist_opt server_keyfile    key.pem               client_keyfile    key.pem
--ssl_dist_opt server_password   <%= key_password %>   client_password   <%= key_password %>
+-ssl_dist_opt server_password   ${KEY_PASSWORD}       client_password   ${KEY_PASSWORD}
 -ssl_dist_opt server_cacertfile cacert.pem            client_cacertfile cacert.pem
 -ssl_dist_opt server_verify     verify_peer           client_verify     verify_peer
 -ssl_dist_opt server_fail_if_no_peer_cert true
