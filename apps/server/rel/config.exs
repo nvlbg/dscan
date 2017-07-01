@@ -28,6 +28,7 @@ release :server do
   ]
   set overlays: [
     {:template, "rel/templates/vm.args", "releases/<%= release_version %>/vm.args"},
+    {:template, "rel/templates/nodes.txt", "nodes.txt"},
     {:template, "rel/templates/cacert.pem", "cacert.pem"},
     {:template, "rel/templates/cert.pem", "cert.pem"},
     {:template, "rel/templates/key.pem", "key.pem"}
