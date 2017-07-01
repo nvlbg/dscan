@@ -44,18 +44,25 @@ defmodule Server.RequestHandler do
   end
 
   defp serve_request(socket, %{"targets" => targets, "ports" => ports}) do
-    total_nodes   = Enum.count(Node.list()) + 1
-    total_targets = Enum.count(targets) * total_nodes
-    {:ok, pid} = GenEvent.start_link
-    GenEvent.add_handler(pid, ProgressHandler, {total_targets, socket})
+    ports = if ports == "all", do: 1..65535, else: ports
 
-    Enum.each(targets, fn target ->
-      Network.new(target)
-      |> Network.partition(total_nodes)
-      |> Enum.zip([node() | Node.list()])
-      |> Enum.each(fn {net, node} ->
-        Scanner.Service.scan(node, pid, net, ports, 5000)
-      end)
+    nodes = [node() | Node.list()]
+    total_nodes   = Enum.count(nodes)
+
+    scans = targets
+    |> Enum.map(&Network.new/1)
+    |> Enum.map(&Network.partition(&1, total_nodes))
+    |> Enum.map(&Enum.zip(&1, nodes))
+    |> Enum.concat
+
+    total_scans = Enum.count(scans)
+
+    {:ok, manager} = GenEvent.start_link
+    GenEvent.add_handler(manager, ProgressHandler, {total_scans, socket})
+
+    scans
+    |> Enum.each(fn {net, node} ->
+      Scanner.Service.scan(node, manager, net, ports, 5000)
     end)
   end
 
