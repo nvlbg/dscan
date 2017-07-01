@@ -6,7 +6,7 @@ defmodule ScannerTest do
     {:ok, manager} = GenEvent.start_link
 
     stream = GenEvent.stream(manager, timeout: 1000) |> Stream.take_while(&(&1 != :done))
-    Scanner.Service.scan(manager, host, [1337])
+    Scanner.Service.scan(node(), manager, host, [1337])
 
     assert Enum.to_list(stream) == [{<< 1, 2, 3, 4 >>, 1337}]
   end
@@ -16,7 +16,7 @@ defmodule ScannerTest do
     {:ok, manager} = GenEvent.start_link
 
     stream = GenEvent.stream(manager, timeout: 1000) |> Stream.take_while(&(&1 != :done))
-    Scanner.Service.scan(manager, net, [1337])
+    Scanner.Service.scan(node(), manager, net, [1337])
 
     assert Enum.to_list(stream) == [{<< 1, 2, 3, 4 >>, 1337},
                                     {<< 1, 2, 3, 42 >>, 1337}]
