@@ -2,6 +2,16 @@ defmodule Server.Application do
   use Application
 
   def start(_type, _args) do
+    # Connect to peers in the cluster
+    if File.exists?("nodes.txt") do
+      File.stream!("nodes.txt")
+      |> Stream.map(&String.trim/1)
+      |> Stream.filter(&(&1 != ""))
+      |> Stream.map(&String.to_atom/1)
+      |> Stream.each(&Node.ping/1)
+      |> Stream.run
+    end
+
     import Supervisor.Spec, warn: false
 
     children = [
