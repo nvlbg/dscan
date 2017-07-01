@@ -28,8 +28,8 @@ defmodule Scanner.Service do
     {:reply, nil, nil}
   end
 
-  def scan(manager, network, ports, timeout \\ :infinity) do
-    GenServer.call(__MODULE__, {:scan, manager, network, ports, timeout})
+  def scan(node, manager, network, ports, timeout \\ :infinity) do
+    GenServer.call({__MODULE__, node}, {:scan, manager, network, ports, timeout})
   end
 end
 
