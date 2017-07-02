@@ -1,8 +1,8 @@
 defmodule ProgressHandler do
   use GenEvent
 
-  def handle_event({ip, port}, {_targets_left, _socket} = state) do
-    IO.inspect {ip, port}
+  def handle_event({ip, port}, {_targets_left, socket} = state) do
+    :ssl.send(socket, ip <> << port::size(16) >>)
     {:ok, state}
   end
 

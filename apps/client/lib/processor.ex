@@ -28,12 +28,26 @@ defmodule Processor do
       {:ok, socket} ->
         msg = Poison.encode!(%{"targets" => targets, "ports" => ports})
         :ok = :ssl.send(socket, msg)
-        {:ok, data} = :ssl.recv(socket, 0)
-        IO.puts "Recieved line: #{data}"
-        :ok = :ssl.close(socket)
+        recv_loop(socket)
       {:error, reason} ->
         Client.halt(1, "Could not connect to server: #{reason}")
     end
   end
+
+  defp recv_loop(socket) do
+    case :ssl.recv(socket, 0) do
+      {:ok, << ip::size(32), port::size(16) >>} ->
+        IO.puts "Open port found: #{ip_to_str(<< ip::size(32) >>)}:#{port}"
+        recv_loop(socket)
+      {:ok, "done"} ->
+        IO.puts "Scan finished"
+        :ssl.close(socket)
+      {:error, reason} ->
+        IO.puts(:stderr, "Connection closed unexpectedly: #{reason}")
+        :ssl.close(socket)
+    end
+  end
+
+  defp ip_to_str(<< a, b, c, d >>), do: "#{a}.#{b}.#{c}.#{d}"
 end
 
