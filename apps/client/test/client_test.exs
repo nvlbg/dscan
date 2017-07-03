@@ -13,12 +13,12 @@ defmodule ClientTest do
 
   test "Invalid options are detected" do
     assert run(~w(--invalid), 1) == \
-      "Unknown option or invalid value: --invalid\n"
+      "Invalid option --invalid\n"
   end
 
   test "Giving non-numeric port fails" do
     assert run(~w(--port 21a), 1) == \
-      "Unknown option or invalid value: --port\n"
+      "Invalid option --port\n"
   end
 
   test "Giving multiple ports with non-numeric ones fails" do
@@ -28,13 +28,13 @@ defmodule ClientTest do
 
   test "Giving more than one port options fails" do
     assert run(~w(--port 80 --all-ports), 1) == \
-      "More than one type of port scanning given\n"
+      "Both --port and --all-ports given\n"
     assert run(~w(--ports 80,443 --all-ports), 1) == \
-      "More than one type of port scanning given\n"
+      "Both --ports and --all-ports given\n"
     assert run(~w(--port 80 --ports 22,80), 1) == \
-      "More than one type of port scanning given\n"
+      "Both --port and --ports given\n"
     assert run(~w(--port 80 --ports 22,80 --all-ports), 1) == \
-      "More than one type of port scanning given\n"
+      "Each of --port --ports and --all-ports given\n"
   end
 
   test "Giving invalid server fails" do

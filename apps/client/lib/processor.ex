@@ -30,7 +30,7 @@ defmodule Processor do
         :ok = :ssl.send(socket, msg)
         recv_loop(socket)
       {:error, reason} ->
-        Client.halt(1, "Could not connect to server: #{reason}")
+        {:error, "Could not connect to server: #{reason}"}
     end
   end
 
@@ -42,9 +42,10 @@ defmodule Processor do
       {:ok, "done"} ->
         IO.puts "Scan finished"
         :ssl.close(socket)
+        :ok
       {:error, reason} ->
-        IO.puts(:stderr, "Connection closed unexpectedly: #{reason}")
         :ssl.close(socket)
+        {:error, "Connection closed unexpectedly: #{reason}"}
     end
   end
 
