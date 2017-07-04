@@ -1,10 +1,8 @@
 defmodule Server.TaskAcceptor do
   require Logger
 
-  def accept() do
-    port         = System.get_env() |> Map.get("PORT", "5000") |> String.to_integer
-    key_password = System.get_env() |> Map.get("KEY_PASSWORD", "") |> to_charlist
-
+  def accept(port, key_password)
+    when is_integer(port) and is_list(key_password) do
     {:ok, socket} = :ssl.listen(port, [
       :binary,
       certfile:   'cert.pem',
@@ -20,7 +18,7 @@ defmodule Server.TaskAcceptor do
 
   defp loop_acceptor(socket) do
     {:ok, client} = :ssl.transport_accept(socket)
-    Logger.info "Recieved a connection..."
+    Logger.info "Received a connection..."
     {:ok, pid} = Task.Supervisor.start_child(
       :request_supervisor,
       Server.RequestHandler,

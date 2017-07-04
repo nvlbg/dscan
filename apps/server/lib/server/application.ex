@@ -14,9 +14,12 @@ defmodule Server.Application do
 
     import Supervisor.Spec, warn: false
 
+    port         = System.get_env() |> Map.get("PORT", "5000") |> String.to_integer
+    key_password = System.get_env() |> Map.get("KEY_PASSWORD", "") |> to_charlist
+
     children = [
       supervisor(Task.Supervisor, [[name: :request_supervisor]], [id: :request_supervisor]),
-      worker(Task, [Server.TaskAcceptor, :accept, []]),
+      worker(Task, [Server.TaskAcceptor, :accept, [port, key_password]]),
       supervisor(Task.Supervisor, [[name: :scan_supervisor]], [id: :scan_supervisor]),
       worker(Scanner.Service, [])
     ]
