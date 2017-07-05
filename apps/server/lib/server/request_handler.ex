@@ -24,22 +24,28 @@ defmodule Server.RequestHandler do
   def serve(socket) do
     case :ssl.ssl_accept(socket) do
       :ok ->
-        serve_loop(socket)
+        serve_loop({socket, []})
       {:error, reason} ->
         Logger.error "Could not ssl accept: #{reason}"
         :ssl.close(socket)
     end
   end
 
-  defp serve_loop(socket) do
+  defp serve_loop({socket, tasks}) do
     case :ssl.recv(socket, 0) do
       {:ok, line} ->
         Logger.info "Recieved line: #{line}"
-        socket |> serve_request(line |> Poison.decode!)
-        serve_loop(socket)
+        new_tasks = socket |> serve_request(line |> Poison.decode!)
+        serve_loop({socket, [new_tasks | tasks]})
       {:error, :closed} ->
         Logger.info "Connection closed"
         :ssl.close(socket)
+
+        # Stop scans for this connection
+        tasks
+        |> Stream.concat
+        |> Stream.each(fn {node, ref} -> Scanner.Service.stop(node, ref) end)
+        |> Stream.run
     end
   end
 
@@ -61,8 +67,8 @@ defmodule Server.RequestHandler do
     GenEvent.add_handler(manager, ProgressHandler, {total_scans, socket})
 
     scans
-    |> Enum.each(fn {net, node} ->
-      Scanner.Service.scan(node, manager, net, ports, 5000)
+    |> Enum.map(fn {net, node} ->
+      {node, Scanner.Service.scan(node, manager, net, ports, 5000)}
     end)
   end
 
@@ -70,6 +76,7 @@ defmodule Server.RequestHandler do
     Logger.error "Unknown command: #{req}"
     :ssl.send(socket, "unknown_command")
     :ssl.close(socket)
+    []
   end
 end
 
