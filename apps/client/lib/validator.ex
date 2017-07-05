@@ -1,4 +1,8 @@
 defmodule Validator do
+  @moduledoc """
+  A module for validating command line options
+  """
+
   @ip_port ~r/^((?:\d{1,2}|1\d{2}|2[0-4]\d|25[0-5])\.
                 (?:\d{1,2}|1\d{2}|2[0-4]\d|25[0-5])\.
                 (?:\d{1,2}|1\d{2}|2[0-4]\d|25[0-5])\.
@@ -13,6 +17,12 @@ defmodule Validator do
 
   @ports ~r/^\d+(,\d+)*$/
 
+  @doc """
+  Validates all passed options according to specification
+
+  Returns {:ok, options} if every option is valid
+  Returns {:error, reason} if an option is invalid
+  """
   def validate_args({_parsed, _targets, []} = args) do
     with {:ok, ports} <- validate_ports(args),
          {:ok, {server, port}} <- validate_server(args),
@@ -34,6 +44,11 @@ defmodule Validator do
     {:error, "Invalid option #{option}"}
   end
 
+  @doc """
+  Validates the --port --ports and --all-ports options
+
+  Only one of the 3 options should be passed
+  """
   def validate_ports({parsed, _targets, []}) do
     port      = parsed |> Keyword.get(:port)
     ports     = parsed |> Keyword.get(:ports)
@@ -59,6 +74,11 @@ defmodule Validator do
     end
   end
 
+  @doc """
+  Validates the --server option which should be in the format ip:port
+
+  If no --server option is passed it defaults to 127.0.0.1:5000
+  """
   def validate_server({parsed, _targets, []}) do
     server = parsed |> Keyword.get(:server, "127.0.0.1:5000")
     case Regex.run(@ip_port, server) do
@@ -69,6 +89,12 @@ defmodule Validator do
     end
   end
 
+  @doc """
+  Checks if passed --certfile --keyfile and --cacertfile exist
+
+  If an option is not passed, they default to cert.pem, key.pem
+  and cacert.pem respectively
+  """
   def validate_certificates({parsed, _targets, []}) do
     certfile     = Keyword.get(parsed, :certfile,     "cert.pem")
     keyfile      = Keyword.get(parsed, :keyfile,      "key.pem")
@@ -87,6 +113,10 @@ defmodule Validator do
     end
   end
 
+  @doc """
+  Validates that at least one target is passed and that
+  targets are of required format ip or ip/mask
+  """
   def validate_targets({_parsed, [], []}), do: {:error, "No targets given"}
   def validate_targets({_parsed, targets, []}) do
     case Enum.find(targets, &(!Regex.match?(@ip_mask, &1))) do

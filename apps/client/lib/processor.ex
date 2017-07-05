@@ -1,4 +1,16 @@
 defmodule Processor do
+  @moduledoc """
+  This module is the link between the client and the server
+
+  It is responsible for sending a request from the client to
+  the server and displaying the results the server responds with
+  """
+
+  @doc """
+  Sends a request to the server and displays found targets
+  
+  `args` are the parsed and validated cli options
+  """
   def send_request(args) do
     server_ip = args |> Map.get(:server_ip)
     server_port = args |> Map.get(:server_port)
@@ -41,6 +53,10 @@ defmodule Processor do
         recv_loop(socket)
       {:ok, "done"} ->
         IO.puts "Scan finished"
+        :ssl.close(socket)
+        :ok
+      {:ok, msg} ->
+        IO.puts "Unknown response from server: #{msg}"
         :ssl.close(socket)
         :ok
       {:error, reason} ->

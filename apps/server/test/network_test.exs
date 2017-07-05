@@ -1,5 +1,6 @@
 defmodule NetworkTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
+  doctest Network
 
   test "Can create network" do
     net = Network.new("192.168.1.1/24")

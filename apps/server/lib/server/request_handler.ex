@@ -19,8 +19,15 @@ defmodule ProgressHandler do
 end
 
 defmodule Server.RequestHandler do
+  @moduledoc """
+  A module which handles scan requests for a client
+  """
+
   require Logger
 
+  @doc """
+  Tries to verify a client and serve its requests
+  """
   def serve(socket) do
     case :ssl.ssl_accept(socket) do
       :ok ->

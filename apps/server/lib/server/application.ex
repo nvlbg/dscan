@@ -1,4 +1,10 @@
 defmodule Server.Application do
+  @moduledoc """
+  The server application is responsible for getting requests
+  from the client application and perform the actual scanning of
+  the targets. If it is connected to other servers, it will distribute
+  the work among all of them
+  """
   use Application
 
   def start(_type, _args) do

@@ -1,6 +1,18 @@
 defmodule Scanner.Worker do
+  @moduledoc """
+  This module provides functionality to scan networks
+  """
+
   @scan_client Application.get_env(:server, :scan_client)
 
+  @doc """
+  Starts a scan for the IP addresses in `network`
+
+  `manager` is an event manager through which found targets will be notified to the caller
+  `network` is a Network struct representing the IP addresses which will be scanned
+  `ports` is a list of ports to be scanned
+  `timeout` is the maximum time to wait before considering a target port closed
+  """
   def start(manager, network, ports, timeout) do
     task_timeout = if timeout == :infinity do
       :infinity

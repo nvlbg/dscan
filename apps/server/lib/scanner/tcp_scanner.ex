@@ -1,4 +1,15 @@
 defmodule Scanner.TcpScanner do
+  @moduledoc """
+  A module for scanning TCP ports
+  """
+
+  @doc """
+  Checks if `ip` has `port` opened.
+
+  `ip` is a 32-bit binary or a char list representing the target
+  `port` is a 16-bit integer
+  `timeout` is the time to wait before considering the port closed
+  """
   def scan_ip(ip, port, timeout \\ :infinity)
 
   def scan_ip(ip, port, timeout) when is_binary(ip) do
